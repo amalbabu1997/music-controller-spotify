@@ -1,3 +1,4 @@
-CLIENT_ID= "a45f96a4283943d795682396a4a86367"
-CLIENT_SECRET="47f8f87245084a7099f8b1019551e1c1"
+CLIENT_ID= "client ID from spotify developers webiste"
+CLIENT_SECRET="key for spotify developers webiste "
 REDIRECT_URI="http://127.0.0.1:8000/spotify/redirect"
+# https://developer.spotify.com/documentation/web-api/tutorials/getting-started
