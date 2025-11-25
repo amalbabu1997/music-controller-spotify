@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { TextField, Button, Grid, Typography } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Grid,
+  Typography,
+  Box,
+  Container,
+} from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
 const JoinRoom = () => {
@@ -48,44 +55,203 @@ const JoinRoom = () => {
   };
 
   return (
-    <Grid container spacing={1}>
-      <Grid item xs={12} align="center">
-        <Typography variant="h4" component="h4">
-          Join a Room
-        </Typography>
-      </Grid>
-      <Grid item xs={12} align="center">
-        <TextField
-          error={roomDetails.error !== ""}
-          label="Code"
-          placeholder="Enter Room Code here"
-          value={roomDetails.roomCode}
-          helperText={roomDetails.error}
-          variant="outlined"
-          onChange={(e) => {
-            const value = e.target.value;
-            setRoomDetails((prevDetails) => ({
-              ...prevDetails,
-              roomCode: value,
-              error: value.trim() === "" ? "Room Code cannot be empty." : "",
-            }));
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+        overflow: "hidden",
+        background:
+          "linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)",
+      }}
+    >
+      {/* Animated background blobs */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: "400px",
+          height: "400px",
+          borderRadius: "50%",
+          background: "rgba(29, 185, 84, 0.1)",
+          top: "-100px",
+          left: "-100px",
+          animation: "float 6s ease-in-out infinite",
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          width: "300px",
+          height: "300px",
+          borderRadius: "50%",
+          background: "rgba(29, 185, 84, 0.05)",
+          bottom: "-50px",
+          right: "-50px",
+          animation: "float 8s ease-in-out infinite reverse",
+        }}
+      />
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+      `}</style>
+
+      <Container maxWidth="sm">
+        <Grid
+          container
+          spacing={3}
+          sx={{
+            position: "relative",
+            zIndex: 1,
+            textAlign: "center",
           }}
-        />
-      </Grid>
-      <Grid item xs={12} align="center">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={roomButtonPressed}
-          style={{ marginRight: "10px" }}
         >
-          Enter Room
-        </Button>
-        <Button variant="contained" color="secondary" to="/" component={Link}>
-          Back
-        </Button>
-      </Grid>
-    </Grid>
+          {/* Title */}
+          <Grid item xs={12}>
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                fontWeight: 700,
+                letterSpacing: 2,
+                color: "#1DB954",
+                mb: 2,
+              }}
+            >
+              Join a Room
+            </Typography>
+          </Grid>
+
+          {/* Text Field */}
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              error={roomDetails.error !== ""}
+              label="Room Code"
+              placeholder="Enter Room Code here"
+              value={roomDetails.roomCode}
+              helperText={roomDetails.error}
+              variant="outlined"
+              size="medium"
+              onChange={(e) => {
+                const value = e.target.value;
+                setRoomDetails((prevDetails) => ({
+                  ...prevDetails,
+                  roomCode: value,
+                  error:
+                    value.trim() === "" ? "Room Code cannot be empty." : "",
+                }));
+              }}
+              sx={{
+                // Style the label (caption)
+                "& .MuiInputLabel-root": {
+                  color: "rgba(255, 255, 255, 0.7)",
+                  fontSize: "1rem",
+                  "&.Mui-focused": {
+                    color: "#1DB954",
+                  },
+                  "&.MuiInputLabel-shrink": {
+                    // When label floats up
+                    backgroundColor: "rgba(15, 12, 41, 0.9)", // Match your background
+                    padding: "0 8px",
+                    marginLeft: "-4px",
+                  },
+                },
+
+                // Style the input box
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  border: "2px solid rgba(29, 185, 84, 0.5)",
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  color: "#fff",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    border: "2px solid #1DB954",
+                    backgroundColor: "rgba(29, 185, 84, 0.1)",
+                  },
+                  "&.Mui-focused": {
+                    border: "2px solid #1DB954",
+                    backgroundColor: "rgba(29, 185, 84, 0.15)",
+                    boxShadow: "0 0 10px rgba(29, 185, 84, 0.3)",
+                  },
+                },
+
+                // Style the text inside
+                "& .MuiOutlinedInput-input": {
+                  color: "#fff",
+                  fontSize: "1.1rem",
+                  padding: "14px 16px",
+                  "&::placeholder": {
+                    color: "rgba(255, 255, 255, 0.5)",
+                    opacity: 1,
+                  },
+                },
+
+                // Style the error message (helper text)
+                "& .MuiFormHelperText-root": {
+                  color: "#ff6b6b",
+                  marginTop: "8px",
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Buttons */}
+          <Grid
+            item
+            xs={12}
+            sx={{ display: "flex", gap: 2, justifyContent: "center" }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={roomButtonPressed}
+              size="large"
+              sx={{
+                px: 4,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-3px)",
+                  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
+                },
+              }}
+            >
+              Enter Room
+            </Button>
+            <Button
+              variant="outlined"
+              to="/"
+              component={Link}
+              size="large"
+              sx={{
+                px: 4,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                transition: "all 0.3s ease",
+                color: "#fff",
+                borderColor: "#fff",
+                "&:hover": {
+                  transform: "translateY(-3px)",
+                  backgroundColor: "rgba(255, 255, 255, 0.1)", // Light white on hover
+                },
+              }}
+            >
+              Back
+            </Button>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 

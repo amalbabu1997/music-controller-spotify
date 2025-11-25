@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Button,
-  Grid,
+  Box,
   Typography,
   TextField,
   FormHelperText,
@@ -12,7 +12,10 @@ import {
   FormControlLabel,
   Collapse,
   Alert,
+  Container,
+  Grid,
 } from "@mui/material";
+import PublicIcon from "@mui/icons-material/Public"; // ← GLOBE ICON
 
 const CreateRoomPage = ({
   update = false,
@@ -23,11 +26,9 @@ const CreateRoomPage = ({
   const [votesToSkip, setVotesToSkip] = useState(2);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [newRoomCode, setNewRoomCode] = useState(null); // Store created room code
-  const [roomUpdated, setRoomUpdated] = useState(false); // Track if room is updated
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch existing room data if updating
   useEffect(() => {
     if (update && roomCode) {
       fetch(`/api/get-room?code=${roomCode}`)
@@ -35,17 +36,20 @@ const CreateRoomPage = ({
         .then((data) => {
           setGuestCanPause(data.guest_can_pause);
           setVotesToSkip(data.votes_to_skip);
-        });
+        })
+        .catch((error) => console.error("Error loading room data:", error));
     }
   }, [update, roomCode]);
 
-  // Handle input changes
   const handleVotesChange = (e) => setVotesToSkip(e.target.value);
   const handleGuestCanPauseChange = (e) =>
     setGuestCanPause(e.target.value === "true");
 
-  // Handle creating a room
   const handleCreateRoom = () => {
+    setLoading(true);
+    setErrorMsg("");
+    setSuccessMsg("");
+
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -58,23 +62,22 @@ const CreateRoomPage = ({
     fetch("/api/create-room", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        setSuccessMsg("Room created successfully!");
-        setErrorMsg("");
-        setNewRoomCode(data.code); // Set the new room code
-
-        // Wait for 2 seconds before navigating
-        setTimeout(() => {
-          navigate(`/room/${data.code}`); // Redirect to the new room
-        }, 2000); // Adjust time as needed
+        setSuccessMsg("Room created! Redirecting...");
+        setLoading(false);
+        navigate(`/room/${data.code}`, { replace: true });
       })
-      .catch(() => {
+      .catch((error) => {
+        setErrorMsg("Error creating room. Please try again.");
         setSuccessMsg("");
-        setErrorMsg("Error creating room...");
+        setLoading(false);
       });
   };
 
-  // Handle updating a room
   const handleUpdateRoom = () => {
+    setLoading(true);
+    setErrorMsg("");
+    setSuccessMsg("");
+
     const requestOptions = {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -86,137 +89,318 @@ const CreateRoomPage = ({
     };
 
     fetch("/api/update-room", requestOptions)
-      .then((response) => {
-        return response.json().then((data) => ({
-          status: response.status,
-          body: data,
-        }));
-      })
+      .then((response) =>
+        response
+          .json()
+          .then((data) => ({ status: response.status, body: data }))
+      )
       .then(({ status, body }) => {
-        console.log("Status Code:", status); // Log the status code
-        console.log("Response Body:", body); // Log the response body
-
         if (status === 200) {
-          setSuccessMsg("Room updated successfully!");
-          setErrorMsg(""); // Clear error message if success
-          setRoomUpdated(true); // Mark room update as successful
-
-          // Display success message for a short time before redirecting
-          setTimeout(() => {
-            // Navigate after success message display
-            navigate(`/room/${roomCode}`); // Redirect to the updated room page
-            // Call updateCallback only after redirection
-            updateCallback();
-          }, 2000); // Adjust this time as needed for user to see the success message
+          setSuccessMsg("Room updated! Redirecting...");
+          setErrorMsg("");
+          setLoading(false);
+          navigate(`/room/${roomCode}`, { replace: true });
+          updateCallback?.();
         } else {
-          setSuccessMsg(""); // Clear success message if error
-          setErrorMsg(body.message || "Error updating room...");
+          setErrorMsg(body.message || "Error updating room.");
+          setSuccessMsg("");
+          setLoading(false);
         }
       })
       .catch((error) => {
-        console.error("Error:", error); // Log the error in case of failure
+        setErrorMsg("Error updating room. Please try again.");
         setSuccessMsg("");
-        setErrorMsg("Error updating room...");
+        setLoading(false);
       });
   };
 
   return (
-    <Grid container spacing={1}>
-      {/* Success/Error Messages */}
-      <Grid item xs={12} align="center">
-        <Collapse in={Boolean(successMsg || errorMsg)}>
-          {successMsg && (
-            <Alert severity="success" onClose={() => setSuccessMsg("")}>
-              {successMsg}
-            </Alert>
-          )}
-          {errorMsg && (
-            <Alert severity="error" onClose={() => setErrorMsg("")}>
-              {errorMsg}
-            </Alert>
-          )}
-        </Collapse>
-      </Grid>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundImage: "url('/static/images/create-room-bg.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+        position: "relative",
+        overflow: "hidden",
 
-      {/* Title */}
-      <Grid item xs={12} align="center">
-        <Typography variant="h4">
-          {update ? "Update Room" : "Create Room"}
-        </Typography>
-      </Grid>
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.3)",
+          zIndex: 0,
+        },
+      }}
+    >
+      {/* Animated background blobs */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: "400px",
+          height: "400px",
+          borderRadius: "50%",
+          background: "rgba(29, 185, 84, 0.1)",
+          top: "-100px",
+          left: "-100px",
+          animation: "float 6s ease-in-out infinite",
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          width: "300px",
+          height: "300px",
+          borderRadius: "50%",
+          background: "rgba(29, 185, 84, 0.05)",
+          bottom: "-50px",
+          right: "-50px",
+          animation: "float 8s ease-in-out infinite reverse",
+        }}
+      />
 
-      {/* Guest Control Selection */}
-      <Grid item xs={12} align="center">
-        <FormControl component="fieldset">
-          <FormHelperText>Guest Control of Playback State</FormHelperText>
-          <RadioGroup
-            row
-            value={guestCanPause.toString()}
-            onChange={handleGuestCanPauseChange}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+      `}</style>
+
+      <Container maxWidth="sm">
+        <Grid
+          container
+          spacing={3}
+          sx={{
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          {/* Success/Error Messages */}
+          <Grid item xs={12}>
+            <Collapse in={Boolean(successMsg || errorMsg)}>
+              {successMsg && (
+                <Alert severity="success" onClose={() => setSuccessMsg("")}>
+                  {successMsg}
+                </Alert>
+              )}
+              {errorMsg && (
+                <Alert severity="error" onClose={() => setErrorMsg("")}>
+                  {errorMsg}
+                </Alert>
+              )}
+            </Collapse>
+          </Grid>
+
+          {/* Title with Icon */}
+          <Grid item xs={12} align="center">
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+              }}
+            >
+              {/* PARTY GLOBE ICON - RESIZED */}
+              <PublicIcon
+                sx={{
+                  fontSize: "4rem", // Size of icon (3rem = 48px)
+                  color: "#1DB954", // Green color
+                  animation: "spin 3s linear infinite",
+                }}
+              />
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  fontWeight: 700,
+                  letterSpacing: 2,
+                  color: "#1DB954",
+                  mb: 0,
+                  fontSize: "4rem",
+                }}
+              >
+                {update ? "Update Room" : "Create Room"}
+              </Typography>
+            </Box>
+          </Grid>
+
+          {/* Guest Control Selection */}
+          <Grid item xs={12} align="center">
+            <FormControl component="fieldset">
+              <FormHelperText
+                sx={{
+                  mb: 1.5,
+                  textAlign: "center",
+                  color: "#fff",
+                  fontSize: "1.6rem ",
+                }}
+              >
+                Guest Control of Playback
+              </FormHelperText>
+              <RadioGroup
+                row
+                value={guestCanPause.toString()}
+                onChange={handleGuestCanPauseChange}
+                sx={{ justifyContent: "center" }}
+              >
+                <FormControlLabel
+                  value="true"
+                  control={
+                    <Radio
+                      color="primary"
+                      sx={{
+                        color: "rgba(255, 255, 255, 0.5)",
+                        "&.Mui-checked": {
+                          color: "#1DB954",
+                        },
+                      }}
+                    />
+                  }
+                  label="Play/Pause"
+                  sx={{ color: "#fff", mr: 3 }}
+                />
+                <FormControlLabel
+                  value="false"
+                  control={
+                    <Radio
+                      color="primary"
+                      sx={{
+                        color: "rgba(255, 255, 255, 0.5)",
+                        "&.Mui-checked": {
+                          color: "#1DB954",
+                        },
+                      }}
+                    />
+                  }
+                  label="No Control"
+                  sx={{ color: "#fff" }}
+                />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+
+          {/* Votes to Skip Input */}
+          <Grid item xs={12} align="center">
+            <FormControl fullWidth>
+              <FormHelperText
+                sx={{
+                  textAlign: "center",
+                  color: "#fff",
+                  mb: 1,
+                  fontSize: "1.6rem ",
+                }}
+              >
+                Votes Required to Skip Song
+              </FormHelperText>
+              <TextField
+                type="number"
+                value={votesToSkip}
+                onChange={handleVotesChange}
+                inputProps={{ min: 1, max: 10 }}
+                disabled={loading}
+                variant="outlined"
+                sx={{
+                  maxWidth: "200px",
+                  margin: "0 auto",
+                  display: "block",
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                    border: "2px solid rgba(29, 185, 84, 0.5)",
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    color: "#fff",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      border: "2px solid #1DB954",
+                      backgroundColor: "rgba(29, 185, 84, 0.1)",
+                    },
+                    "&.Mui-focused": {
+                      border: "2px solid #1DB954",
+                      backgroundColor: "rgba(29, 185, 84, 0.15)",
+                      boxShadow: "0 0 10px rgba(29, 185, 84, 0.3)",
+                    },
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    color: "#fff",
+                    textAlign: "center",
+                    fontSize: "1.2rem",
+                    fontWeight: 600,
+                  },
+                }}
+              />
+            </FormControl>
+          </Grid>
+
+          {/* Buttons */}
+          <Grid
+            item
+            xs={12}
+            sx={{ display: "flex", gap: 2, justifyContent: "center", mt: 2 }}
           >
-            <FormControlLabel
-              value="true"
-              control={<Radio color="primary" />}
-              label="Play/Pause"
-              labelPlacement="bottom"
-            />
-            <FormControlLabel
-              value="false"
-              control={<Radio color="secondary" />}
-              label="No Control"
-              labelPlacement="bottom"
-            />
-          </RadioGroup>
-        </FormControl>
-      </Grid>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={update ? handleUpdateRoom : handleCreateRoom}
+              disabled={loading}
+              size="large"
+              sx={{
+                px: 4,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-3px)",
+                  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
+                },
+              }}
+            >
+              {loading
+                ? update
+                  ? "Updating..."
+                  : "Creating..."
+                : update
+                ? "Update Room"
+                : "Create Room"}
+            </Button>
 
-      {/* Votes to Skip Input */}
-      <Grid item xs={12} align="center">
-        <FormControl>
-          <TextField
-            type="number"
-            value={votesToSkip}
-            onChange={handleVotesChange}
-            inputProps={{ min: 1 }}
-          />
-          <FormHelperText>Votes Required to Skip Song</FormHelperText>
-        </FormControl>
-      </Grid>
-
-      {/* Buttons */}
-      {update ? (
-        // Update Button
-        <Grid item xs={12} align="center">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleUpdateRoom}
-          >
-            Update Room
-          </Button>
+            {!update && (
+              <Button
+                variant="outlined"
+                to="/"
+                component={Link}
+                size="large"
+                sx={{
+                  px: 4,
+                  py: 1.5,
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  transition: "all 0.3s ease",
+                  color: "#fff",
+                  borderColor: "#fff",
+                  "&:hover": {
+                    transform: "translateY(-3px)",
+                    backgroundColor: "rgba(255, 255, 255, 0.1)", // Light white on hover
+                  },
+                }}
+              >
+                Back
+              </Button>
+            )}
+          </Grid>
         </Grid>
-      ) : (
-        <Grid item xs={12} align="center">
-          {/* Create Room Button */}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleCreateRoom}
-          >
-            Create Room
-          </Button>
-        </Grid>
-      )}
-
-      {/* Back Button */}
-      {!update && (
-        <Grid item xs={12} align="center">
-          <Button color="secondary" variant="contained" component={Link} to="/">
-            Back
-          </Button>
-        </Grid>
-      )}
-    </Grid>
+      </Container>
+    </Box>
   );
 };
 

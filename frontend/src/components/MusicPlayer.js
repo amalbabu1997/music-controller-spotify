@@ -1,5 +1,12 @@
 import React from "react";
-import { Grid, Typography, Card, CardContent, IconButton, LinearProgress } from "@mui/material";
+import {
+  Grid,
+  Typography,
+  Card,
+  CardContent,
+  IconButton,
+  LinearProgress,
+} from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -7,7 +14,12 @@ import PauseIcon from "@mui/icons-material/Pause";
 const MusicPlayer = ({ song }) => {
   if (!song || !song.title) {
     return (
-      <Grid container justifyContent="center" alignItems="center" sx={{ height: "100vh" }}>
+      <Grid
+        container
+        justifyContent="center"
+        alignItems="center"
+        sx={{ height: "100vh" }}
+      >
         <Typography variant="h6">No song is currently playing</Typography>
       </Grid>
     );
@@ -38,12 +50,29 @@ const MusicPlayer = ({ song }) => {
   };
 
   return (
-    <Grid container justifyContent="center" alignItems="center" sx={{ height: "100vh" }}>
+    <Grid
+      container
+      justifyContent="center"
+      alignItems="center"
+      sx={{ height: "100vh" }}
+    >
       <Grid item xs={12} sm={8} md={6}>
-        <Card sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: 3, borderRadius: 3 }}>
+        <Card
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: 3,
+            borderRadius: 3,
+          }}
+        >
           <CardContent sx={{ width: "100%" }}>
-            <Grid container spacing={2} justifyContent="center" alignItems="center">
-
+            <Grid
+              container
+              spacing={2}
+              justifyContent="center"
+              alignItems="center"
+            >
               {/* Song Title */}
               <Grid item xs={12} align="center">
                 <Typography variant="h6">Now Playing: {song.title}</Typography>
@@ -51,7 +80,12 @@ const MusicPlayer = ({ song }) => {
 
               {/* Album Image */}
               <Grid item xs={12} align="center">
-                <img src={song.album_image} alt="Album Cover" width="200" style={{ borderRadius: "8px" }} />
+                <img
+                  src={song.album_image}
+                  alt="Album Cover"
+                  width="200"
+                  style={{ borderRadius: "8px" }}
+                />
               </Grid>
 
               {/* Artist Name */}
@@ -71,7 +105,8 @@ const MusicPlayer = ({ song }) => {
                   <SkipNextIcon />
                 </IconButton>
                 <Typography variant="h6">
-                  Votes: {song.votes} / {song.votes_required}  {/* ✅ Corrected Vote Display */}
+                  Votes: {song.votes} / {song.votes_required}{" "}
+                  {/*  Corrected Vote Display */}
                 </Typography>
               </Grid>
 
@@ -83,7 +118,6 @@ const MusicPlayer = ({ song }) => {
                   sx={{ borderRadius: 5, height: 10 }}
                 />
               </Grid>
-
             </Grid>
           </CardContent>
         </Card>

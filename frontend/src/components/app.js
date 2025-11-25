@@ -1,11 +1,17 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import HomePage from "./HomePage";
 import JoinRoom from "./JoinRoom";
 import CreateRoom from "./CreateRoom";
 import Room from "./Room";
 
 const App = () => {
+  const location = useLocation();
+
+  React.useEffect(() => {
+    console.log(" Current route:", location.pathname);
+  }, [location.pathname]);
+
   return (
     <Routes className="center">
       <Route path="/" element={<HomePage />} />

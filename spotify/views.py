@@ -108,23 +108,12 @@ class CurrentSong(APIView):
 
 class PauseSong(APIView):
     def put(self, request, format=None):
-        room_code = request.session.get('room_code')
-        
-        if not room_code:
-            return Response({"error": "Room code not found in session"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        room = get_object_or_404(Room, code=room_code)
-        
-        session_key = request.session.session_key
-        if session_key is None:
-            request.session.save()  # Ensure session key exists
-            session_key = request.session.session_key
-        
-        if session_key == room.host or room.guest_can_pause:
+        room = get_object_or_404(Room, code=self.request.session.get('room_code'))
+        if self.request.session.session_key == room.host or room.guest_can_pause:
             pause_song(room.host)
             return Response({}, status=status.HTTP_204_NO_CONTENT)
+        return Response({}, status=status.HTTP_403_FORBIDDEN)
 
-        return Response({"error": "Not authorized to pause song"}, status=status.HTTP_403_FORBIDDEN)
 
 class PlaySong(APIView):
     def put(self, request, format=None):
@@ -132,7 +121,7 @@ class PlaySong(APIView):
         if self.request.session.session_key == room.host or room.guest_can_pause:
             play_song(room.host)
             return Response({}, status=status.HTTP_204_NO_CONTENT)
-        return Response({"error": "Not a premium User"}, status=status.HTTP_403_FORBIDDEN)
+        return Response({}, status=status.HTTP_403_FORBIDDEN)
 
 
 class SkipSong(APIView):
